@@ -36,7 +36,11 @@
   (let ((note-index (cl-position key notes :test 'string=)))
     (mapcar  '(lambda (elem)  (shift-pitch (cdr elem) note-index)) c-harp)))
 
-(defun harp-layout ("A"))
+(defun harp-layout (key)
+  (let ((key-notes (harp-notes key)))
+    (cl-mapcar #'cons harp-holes key-notes)))
+
+(harp-layout "A")
 
 (message (cdr (car c-harp)))
 
