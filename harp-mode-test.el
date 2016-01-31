@@ -26,3 +26,7 @@
   (should (equal "A" (hole-to-note "A" "7")))
   (should (equal "E" (hole-to-note "C" "5")))
   (should (equal "C#" (hole-to-note "A" (note-to-hole "A" "C#" 2)))))
+
+(ert-deftest notes-to-tab-test ()
+  (should (equal '("4" "5" "6")
+                 (notes-to-holes "C" 2 '("C" "E" "G")))))

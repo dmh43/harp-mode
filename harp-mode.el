@@ -56,4 +56,40 @@
   (let* ((sharp-key (to-sharp key)))
     (cdr (assoc hole (harp-layout sharp-key)))))
 
+(defun notes-to-holes (key octave notes)
+  (let* ((key-sharp (to-sharp key)))
+    (mapcar (lambda (note)
+              (note-to-hole key-sharp note octave))
+            notes)))
+
+(defun notes-to-tab (key octave notes-str &optional from to)
+  (interactive
+   (when (use-region-p)
+       (list nil nil nil (region-beginning) (region-end))))
+  (let* ((workOnStringP (if notes-str t nil))
+         (inputStr (if workOnStringP
+                       notes-str
+                     (buffer-substring-no-properties from to)))
+         (args-and-notes (split-string inputStr "\n" t " "))
+         (args (split-string (car args-and-notes) " "))
+         (notes (if notes-str
+                    (split-string notes-str " ")
+                  (split-string (cadr args-and-notes) " ")))
+         (key-sharp (if key
+                        (to-sharp key)
+                      (to-sharp (car args))))
+         (octave (if octave
+                     octave
+                   (string-to-int (cadr args))))
+         (outputStr
+          (mapconcat (lambda (note)
+                    (note-to-hole key-sharp note octave))
+                     notes
+                     " ")))
+    (if workOnStringP
+        outputStr
+      (save-excursion
+        (newline)
+        (insert outputStr)))))
+
 (provide 'harp-mode)
