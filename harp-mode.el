@@ -80,7 +80,7 @@
                       (to-sharp (car args))))
          (octave (if octave
                      octave
-                   (string-to-int (cadr args))))
+                   (string-to-number (cadr args))))
          (outputStr
           (mapconcat (lambda (note)
                     (note-to-hole key-sharp note octave))
