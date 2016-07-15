@@ -47,7 +47,14 @@
     (cl-mapcar #'cons harp-holes key-notes)))
 
 (defun note-to-hole (key note octave)
-  (let* ((start (nth (decf octave) octave-indices))
+  (let* ((octave (if (string-prefix-p "^" note)
+                     (+ octave 1)
+                   (if (string-prefix-p "," note) (- octave 1) octave)))
+         (note (if (or (string-prefix-p "^" note)
+                       (string-prefix-p "," note))
+                   (substring note 1)
+                 note))
+         (start (nth (decf octave) octave-indices))
          (sharp-key (to-sharp key)) ; sanitize the input
          (sub-harp (nthcdr start (harp-layout sharp-key))))
     (car (rassoc note sub-harp))))
