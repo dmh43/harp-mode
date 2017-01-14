@@ -99,4 +99,14 @@
         (newline)
         (insert outputStr)))))
 
+(defvar harp-mode-map
+  (let ((map (make-sparse-keymap)))
+    map)
+  "Keymap for `harp-mode'.")
+
+(define-derived-mode harp-mode fundamental-mode "Harp"
+  )
+
+(add-to-list 'auto-mode-alist '("\\.harp\\'" . harp-mode))
+
 (provide 'harp-mode)
