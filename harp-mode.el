@@ -1,52 +1,52 @@
-(setq notes-sharps '("C" "C#" "D" "D#" "E" "F" "F#" "G" "G#" "A" "A#" "B"))
-(setq notes-flats '("C" "Db" "D" "Eb" "E" "F" "Gb" "G" "Ab" "A" "Bb" "B"))
-(setq c-harp '(("1" . "C") ("-1'" . "C#") ("-1" . "D")  ("2" . "E") ("-2''". "F") ("-2'" . "F#") ("-2" . "G")
+(setq harp-notes-sharps '("C" "C#" "D" "D#" "E" "F" "F#" "G" "G#" "A" "A#" "B"))
+(setq harp-notes-flats '("C" "Db" "D" "Eb" "E" "F" "Gb" "G" "Ab" "A" "Bb" "B"))
+(setq harp-c-harp '(("1" . "C") ("-1'" . "C#") ("-1" . "D")  ("2" . "E") ("-2''". "F") ("-2'" . "F#") ("-2" . "G")
                ("3" . "G") ("-3'''" . "G#") ("-3''" . "A") ("-3'" . "A#") ("-3" . "B")
                ("4" . "C") ("-4'" . "C#") ("-4" . "D") ("5" . "E") ("-5" . "F") ("6" . "G") ("-6'" . "G#")
                ("-6" . "A") ("-7" . "B") ("7" . "C") ("-8" . "D") ("8'" . "D#") ("8" . "E") ("-9" . "F")
                ("9'" . "F#") ("9" . "G") ("-10" . "A") ("10''" . "A#") ("10'" . "B") ("10" . "C")))
 (setq harp-holes '("1" "-1'" "-1" "2" "-2''" "-2'" "-2" "3" "-3'''" "-3''" "-3'" "-3" "4" "-4'" "-4" "5"
                    "-5" "6" "-6'" "-6" "-7" "7" "-8" "8'" "8" "-9" "9'" "9" "-10" "10''" "10'" "10"))
-(setq first-octave 0)
-(setq second-octave 12)
-(setq third-octave 20)
-(setq octave-indices (list first-octave second-octave third-octave))
+(setq harp-first-octave 0)
+(setq harp-second-octave 12)
+(setq harp-third-octave 20)
+(setq harp-octave-indices (list harp-first-octave harp-second-octave harp-third-octave))
 
-(defun cycle (seq n)
+(defun harp-cycle (seq n)
   "Returns a lazy sequence of the items in the given sequence repeated infinitely"
   (elt seq (mod n (length seq))))
 
-(defun to-flat (note)
+(defun harp-to-flat (note)
   (if (string-suffix-p "#" note)
-      (elt notes-flats (cl-position note notes-sharps :test 'string=))
+      (elt harp-notes-flats (cl-position note harp-notes-sharps :test 'string=))
     note))
 
-(defun to-sharp (note)
+(defun harp-to-sharp (note)
   (if (string-suffix-p "b" note)
-      (elt notes-sharps (cl-position note notes-flats :test 'string=))
+      (elt harp-notes-sharps (cl-position note harp-notes-flats :test 'string=))
     note))
 
-(defun fifth-above (note)
-  (let ((note-index (cl-position note notes-sharps :test 'string=)))
-    (cycle notes-sharps (+ note-index 7))))
+(defun harp-fifth-above (note)
+  (let ((note-index (cl-position note harp-notes-sharps :test 'string=)))
+    (harp-cycle harp-notes-sharps (+ note-index 7))))
 
-(defun fifth-below (note)
-  (let ((note-index (cl-position note notes-sharps :test 'string=)))
-    (cycle notes-sharps (- note-index 7))))
+(defun harp-fifth-below (note)
+  (let ((note-index (cl-position note harp-notes-sharps :test 'string=)))
+    (harp-cycle harp-notes-sharps (- note-index 7))))
 
-(defun shift-pitch (note delta)
-  (let ((note-index (cl-position note notes-sharps :test 'string=)))
-    (cycle notes-sharps (+ note-index delta))))
+(defun harp-shift-pitch (note delta)
+  (let ((note-index (cl-position note harp-notes-sharps :test 'string=)))
+    (harp-cycle harp-notes-sharps (+ note-index delta))))
 
 (defun harp-notes (key)
-  (let ((note-index (cl-position key notes-sharps :test 'string=)))
-    (mapcar  '(lambda (elem)  (shift-pitch (cdr elem) note-index)) c-harp)))
+  (let ((note-index (cl-position key harp-notes-sharps :test 'string=)))
+    (mapcar  '(lambda (elem)  (harp-shift-pitch (cdr elem) note-index)) harp-c-harp)))
 
 (defun harp-layout (key)
   (let ((key-notes (harp-notes key)))
     (cl-mapcar #'cons harp-holes key-notes)))
 
-(defun note-to-hole (key note octave)
+(defun harp-note-to-hole (key note octave)
   (let* ((octave (if (string-prefix-p "^" note)
                      (+ octave 1)
                    (if (string-prefix-p "," note) (- octave 1) octave)))
@@ -54,22 +54,22 @@
                        (string-prefix-p "," note))
                    (substring note 1)
                  note))
-         (start (nth (decf octave) octave-indices))
-         (sharp-key (to-sharp key)) ; sanitize the input
+         (start (nth (decf octave) harp-octave-indices))
+         (sharp-key (harp-to-sharp key)) ; sanitize the input
          (sub-harp (nthcdr start (harp-layout sharp-key))))
     (car (rassoc note sub-harp))))
 
-(defun hole-to-note (key hole)
-  (let* ((sharp-key (to-sharp key)))
+(defun harp-hole-to-note (key hole)
+  (let* ((sharp-key (harp-to-sharp key)))
     (cdr (assoc hole (harp-layout sharp-key)))))
 
-(defun notes-to-holes (key octave notes)
-  (let* ((key-sharp (to-sharp key)))
+(defun harp-notes-to-holes (key octave notes)
+  (let* ((key-sharp (harp-to-sharp key)))
     (mapcar (lambda (note)
-              (note-to-hole key-sharp note octave))
+              (harp-note-to-hole key-sharp note octave))
             notes)))
 
-(defun notes-to-tab (key octave notes-str &optional from to)
+(defun harp-notes-to-tab (key octave notes-str &optional from to)
   (interactive
    (when (use-region-p)
        (list nil nil nil (region-beginning) (region-end))))
@@ -83,14 +83,14 @@
                     (split-string notes-str " ")
                   (split-string (cadr args-and-notes) " ")))
          (key-sharp (if key
-                        (to-sharp key)
-                      (to-sharp (car args))))
+                        (harp-to-sharp key)
+                      (harp-to-sharp (car args))))
          (octave (if octave
                      octave
                    (string-to-number (cadr args))))
          (outputStr
           (mapconcat (lambda (note)
-                    (note-to-hole key-sharp note octave))
+                    (harp-note-to-hole key-sharp note octave))
                      notes
                      " ")))
     (if workOnStringP

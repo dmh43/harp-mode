@@ -1,35 +1,35 @@
 (require 'harp-mode)
 
 (ert-deftest enharmonics-convert-test ()
-  (should (equal "Bb" (to-flat "A#")))
-  (should (equal "A#" (to-sharp "A#")))
-  (should (equal "A#" (to-sharp (to-flat "A#")))))
+  (should (equal "Bb" (harp-to-flat "A#")))
+  (should (equal "A#" (harp-to-sharp "A#")))
+  (should (equal "A#" (harp-to-sharp (to-flat "A#")))))
 
 (ert-deftest pitch-shift-test ()
-  (should (equal "E" (fifth-above "A")))
-  (should (equal "D" (fifth-below "A")))
-  (should (equal "A" (fifth-above (fifth-below "A"))))
-  (should (equal "C" (shift-pitch "B" 1))))
+  (should (equal "E" (harp-fifth-above "A")))
+  (should (equal "D" (harp-fifth-below "A")))
+  (should (equal "A" (harp-fifth-above (fifth-below "A"))))
+  (should (equal "C" (harp-shift-pitch "B" 1))))
 
 (ert-deftest harp-layout-test ()
-  (should (equal c-harp (harp-layout "C"))))
+  (should (equal harp-c-harp (harp-layout "C"))))
 
 (ert-deftest note-to-hole-test ()
-  (should (equal "1" (note-to-hole "A" "A" 1)))
-  (should (equal "4" (note-to-hole "A" "A" 2)))
-  (should (equal "7" (note-to-hole "A" "A" 3)))
-  (should (equal "5" (note-to-hole "C" "E" 2))))
+  (should (equal "1" (harp-note-to-hole "A" "A" 1)))
+  (should (equal "4" (harp-note-to-hole "A" "A" 2)))
+  (should (equal "7" (harp-note-to-hole "A" "A" 3)))
+  (should (equal "5" (harp-note-to-hole "C" "E" 2))))
 
 (ert-deftest hole-to-note-test ()
-  (should (equal "A" (hole-to-note "A" "1")))
-  (should (equal "A" (hole-to-note "A" "4")))
-  (should (equal "A" (hole-to-note "A" "7")))
-  (should (equal "E" (hole-to-note "C" "5")))
-  (should (equal "C#" (hole-to-note "A" (note-to-hole "A" "C#" 2)))))
+  (should (equal "A" (harp-hole-to-note "A" "1")))
+  (should (equal "A" (harp-hole-to-note "A" "4")))
+  (should (equal "A" (harp-hole-to-note "A" "7")))
+  (should (equal "E" (harp-hole-to-note "C" "5")))
+  (should (equal "C#" (harp-hole-to-note "A" (harp-note-to-hole "A" "C#" 2)))))
 
 (ert-deftest notes-to-tab-test ()
   (should (equal "4 5 6 7 1"
-                 (notes-to-tab "C" 2 "C E G ^C ,C"))))
+                 (harp-notes-to-tab "C" 2 "C E G ^C ,C"))))
 
 ;; C 1
 ;; A F A F F D C F F F F A ^C ^C ^C
